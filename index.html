@@ -1,275 +1,116 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Tarot Auto Shuffle & Draw</title>
-  <style>
-    :root { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", Arial; }
-    body { margin: 0; background:#0b0d10; color:#e9eef5; }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 24px; }
-    h1 { font-size: 20px; margin: 0 0 16px; letter-spacing: .4px; }
-    .panel { background:#12161c; border:1px solid #1f2a37; border-radius: 12px; padding: 16px; }
-    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .row { display:flex; flex-direction:column; gap: 6px; }
-    label { font-size: 12px; color:#a9b4c0; }
-    input, select, button {
-      background:#0f1318; color:#e9eef5; border:1px solid #253244;
-      border-radius: 10px; padding: 10px 12px; font-size: 14px;
-      outline: none;
-    }
-    input[type="checkbox"]{ width: 18px; height: 18px; }
-    .inline { display:flex; align-items:center; gap: 10px; flex-direction: row; }
-    button { cursor:pointer; border-color:#2d4058; background:#162033; }
-    button:hover { background:#192844; }
-    .actions { display:flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-    .note { font-size: 12px; color:#9aa6b2; margin-top: 8px; line-height: 1.5; }
-    .out { margin-top: 16px; }
-    .cards { display:grid; grid-template-columns: 1fr; gap: 10px; }
-    .card {
-      border:1px solid #223044; border-radius: 12px; padding: 12px;
-      background: linear-gradient(180deg, #111722, #0f1318);
-    }
-    .pos { font-size: 12px; color:#a9b4c0; margin-bottom: 6px; }
-    .name { font-size: 16px; font-weight: 650; }
-    .tag { display:inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; margin-left: 8px; border:1px solid #2b3c55; color:#cfe3ff; }
-    .footer { margin-top: 18px; font-size: 12px; color:#7f8a96; }
-    @media (max-width: 720px){ .grid{ grid-template-columns: 1fr; } }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Thoth Tarot · 凯尔特十字</title>
+
+<style>
+:root{
+  --bg:#0b0d10;
+  --panel:#12161c;
+  --border:#253244;
+  --text:#e9eef5;
+  --muted:#9aa6b2;
+  --accent:#2d4058;
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",
+  "PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+.wrap{max-width:900px;margin:0 auto;padding:24px;}
+h1{font-size:20px;letter-spacing:1px;margin-bottom:12px;}
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+}
+button{
+  background:var(--accent);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:8px;
+  padding:10px 14px;
+  cursor:pointer;
+}
+button:hover{background:#364e6d;}
+.note{color:var(--muted);font-size:13px;line-height:1.6;}
+.cards{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
+.card{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  background:linear-gradient(180deg,#0f1318,#0b0d10);
+}
+.card b{display:block;margin-bottom:6px;}
+.footer{margin-top:16px;font-size:12px;color:var(--muted);}
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <h1>Tarot Auto Shuffle & Drawï¼ç½é¡µç¦»çº¿çï¼</h1>
+<div class="wrap">
+  <h1>Thoth Tarot · 凯尔特十字</h1>
 
-    <div class="panel">
-      <div class="grid">
-        <div class="row">
-          <label>çéµ</label>
-          <select id="spread">
-            <option value="single">åå¼ </option>
-            <option value="ppf">è¿å» / ç°å¨ / æªæ¥ï¼3å¼ ï¼</option>
-            <option value="celtic" selected>å¯å°ç¹åå­ï¼10å¼ ï¼</option>
-          </select>
-        </div>
+  <div class="panel">
+    <p class="note">
+      本系统基于托特塔罗与 G.D./A∴A∴ 传统。<br>
+      不采用现代“好坏逆位”解释；若出现逆向，仅视为力量受阻、内化或未完全显现。
+    </p>
 
-        <div class="row">
-          <label>æ´çæ¬¡æ°ï¼å»ºè®® 7ï¼</label>
-          <input id="shuffleTimes" type="number" min="1" max="100" value="7"/>
-        </div>
+    <button onclick="draw()">洗牌 · 切牌 · 抽牌</button>
 
-        <div class="row">
-          <label class="inline">
-            <input id="cutThree" type="checkbox" checked />
-            <span>åä¸å åéç»ï¼æ¨¡æä¹¦éâä¸å âå¨ä½ï¼</span>
-          </label>
-          <div class="note">ä¸å¾éååªåä¸æ¬¡æ®éåçï¼ä¸¤æ®µäº¤æ¢ï¼ã</div>
-        </div>
+    <div id="out" class="cards"></div>
 
-        <div class="row">
-          <label>éä½æ¦çï¼0 ~ 1ï¼</label>
-          <input id="revProb" type="number" min="0" max="1" step="0.05" value="0.25"/>
-          <div class="note">å¦æä½ æ³æä½ ä¹¦é G.D./Aâ´Aâ´ çç¨æ³ï¼æå®è®¾ä¸º <b>0</b>ï¼ä¸ä½¿ç¨éä½ï¼ã</div>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button id="drawBtn">æ´ç + åç + æ½ç</button>
-        <button id="resetBtn">éç½®è®¾ç½®</button>
-        <button id="copyBtn">å¤å¶ç»æ</button>
-      </div>
-
-      <div class="out">
-        <div id="meta" class="note"></div>
-        <div id="result" class="cards"></div>
-      </div>
-
-      <div class="footer">
-        æç¤ºï¼è¿æ¯çº¯åç«¯ç¦»çº¿çãä½ å¯ä»¥ææä»¶åç»æåï¼ä»ä»¬åå»ä¹è½ç¨ã
-      </div>
+    <div class="footer">
+      使用前请静心，明确问题。此系统用于象征性指引与内在观照。
     </div>
   </div>
+</div>
 
 <script>
-/** ========= çåºï¼æç¹é£æ ¼ï¼Disks + Knight/Queen/Prince/Princessï¼ ========= */
-const MAJOR = [
-  "0 The Fool","I The Magician","II The High Priestess","III The Empress",
-  "IV The Emperor","V The Hierophant","VI The Lovers","VII The Chariot",
-  "VIII Strength","IX The Hermit","X Wheel of Fortune","XI Justice",
-  "XII The Hanged Man","XIII Death","XIV Temperance","XV The Devil",
-  "XVI The Tower","XVII The Star","XVIII The Moon","XIX The Sun",
-  "XX Judgement","XXI The World"
+const cards = [
+  "愚者","魔术师","女祭司","女皇","皇帝","教皇",
+  "恋人","战车","调整","隐者","命运之轮","欲望",
+  "倒吊人","死亡","艺术","魔鬼","塔","星星","月亮","太阳",
+  "审判","宇宙"
 ];
 
-const SUITS = ["Wands","Cups","Swords","Disks"];
-const PIPS = ["Ace","2","3","4","5","6","7","8","9","10"];
-const COURTS = ["Knight","Queen","Prince","Princess"];
-
-function defaultDeck(){
-  const d = [];
-  d.push(...MAJOR);
-  for (const suit of SUITS){
-    for (const p of PIPS) d.push(`${p} of ${suit}`);
-    for (const c of COURTS) d.push(`${c} of ${suit}`);
-  }
-  return d; // 78
-}
-
-/** ========= å·¥å·å½æ° ========= */
-function shuffle(deck){
-  // Fisher-Yates
-  const a = deck.slice();
-  for (let i = a.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function multiShuffle(deck, times){
-  let d = deck.slice();
-  const t = Math.max(1, Number(times) || 1);
-  for (let i=0; i<t; i++) d = shuffle(d);
-  return d;
-}
-
-function cutTwo(deck){
-  const n = deck.length;
-  const cutAt = Math.floor(Math.random() * (n - 1)) + 1;
-  return deck.slice(cutAt).concat(deck.slice(0, cutAt));
-}
-
-function cutThree(deck){
-  const n = deck.length;
-  const a = Math.floor(Math.random() * (n - 2)) + 1;
-  const b = Math.floor(Math.random() * (n - a - 1)) + a + 1;
-  const left = deck.slice(0, a);
-  const mid  = deck.slice(a, b);
-  const right= deck.slice(b);
-
-  const orders = [
-    [left, mid, right],
-    [left, right, mid],
-    [mid, left, right],
-    [mid, right, left],
-    [right, left, mid],
-    [right, mid, left],
-  ];
-  const chosen = orders[Math.floor(Math.random() * orders.length)];
-  return chosen.flat();
-}
-
-function draw(deck, k, revProb){
-  const p = Math.min(1, Math.max(0, Number(revProb) || 0));
-  const drawn = deck.slice(0, k).map(name => ({
-    name,
-    reversed: Math.random() < p
-  }));
-  return { drawn, rest: deck.slice(k) };
-}
-
-/** ========= çéµ ========= */
-const CELTIC = [
-  "1 è¦ç(ä½ /ä¸»é¢)",
-  "2 æ¨ªè·¨(é»ç¢/ææ)",
-  "3 å å(ç®æ /çæ³)",
-  "4 æ ¹åº(åºç¡/æ½æè¯)",
-  "5 è¿å»(æ¶éå½±å)",
-  "6 æªæ¥(å°èµ·å½±å)",
-  "7 ä½ èªå·±(æåº¦/ç«åº)",
-  "8 ç¯å¢(å¤ç/ä»äºº)",
-  "9 å¸æä¸ææ§",
-  "10 ç»æ(è¶å/ç»å±)"
+const positions = [
+  "现状（Significator）",
+  "阻碍 / 助力",
+  "显意识目标",
+  "潜意识基础",
+  "过去影响",
+  "即将显现的未来",
+  "提问者自身",
+  "环境 / 他人",
+  "希望与恐惧",
+  "最终结果"
 ];
 
-function getSpread(spread){
-  if (spread === "single") return ["åå¼ "];
-  if (spread === "ppf") return ["è¿å»","ç°å¨","æªæ¥"];
-  return CELTIC;
-}
-
-/** ========= UI ========= */
-const $ = (id)=>document.getElementById(id);
-
-function renderResult(positions, cards){
-  const wrap = $("result");
-  wrap.innerHTML = "";
-  positions.forEach((pos, i) => {
-    const c = cards[i];
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-      <div class="pos">${pos}</div>
-      <div class="name">
-        ${c.name}
-        ${c.reversed ? `<span class="tag">Reversed</span>` : ``}
-      </div>
-    `;
-    wrap.appendChild(div);
-  });
-}
-
-function buildText(positions, cards, meta){
-  const lines = [];
-  lines.push(meta);
-  lines.push("");
-  positions.forEach((pos, i) => {
-    const c = cards[i];
-    lines.push(`${pos}: ${c.name}${c.reversed ? " (Reversed)" : ""}`);
-  });
-  return lines.join("\n");
-}
-
-function doDraw(){
-  const spread = $("spread").value;
-  const shuffleTimes = $("shuffleTimes").value;
-  const cut3 = $("cutThree").checked;
-  const revProb = $("revProb").value;
-
-  let deck = defaultDeck();
-  deck = multiShuffle(deck, shuffleTimes);
-  deck = cut3 ? cutThree(deck) : cutTwo(deck);
-
-  const positions = getSpread(spread);
-  const { drawn } = draw(deck, positions.length, revProb);
-
-  const meta = `è®¾ç½®ï¼çéµ=${spread}ï½æ´ç=${shuffleTimes}ï½åç=${cut3 ? "ä¸å " : "ä¸¤æ®µ"}ï½éä½æ¦ç=${revProb}`;
-  $("meta").textContent = meta;
-
-  renderResult(positions, drawn);
-
-  // ä¿å­å° window ä¸æ¹ä¾¿å¤å¶
-  window.__tarot_last = { positions, drawn, meta };
-}
-
-function reset(){
-  $("spread").value = "celtic";
-  $("shuffleTimes").value = 7;
-  $("cutThree").checked = true;
-  $("revProb").value = 0.25;
-  $("meta").textContent = "";
-  $("result").innerHTML = "";
-  window.__tarot_last = null;
-}
-
-async function copyResult(){
-  if (!window.__tarot_last){
-    alert("è¿æ²¡æç»æï¼åæ½ä¸æ¬¡çã");
-    return;
-  }
-  const { positions, drawn, meta } = window.__tarot_last;
-  const text = buildText(positions, drawn, meta);
-  try{
-    await navigator.clipboard.writeText(text);
-    alert("å·²å¤å¶å°åªè´´æ¿ï¼");
-  }catch(e){
-    // å¼å®¹ï¼å¤å¶å¤±è´¥å°±å¼¹åºææ¬
-    prompt("å¤å¶å¤±è´¥ï¼ä½ å¯ä»¥æå¨å¤å¶ï¼", text);
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
   }
 }
 
-$("drawBtn").addEventListener("click", doDraw);
-$("resetBtn").addEventListener("click", reset);
-$("copyBtn").addEventListener("click", copyResult);
+function draw(){
+  const pool=[...cards];
+  shuffle(pool);
+  const out=document.getElementById("out");
+  out.innerHTML="";
+  for(let i=0;i<10;i++){
+    const el=document.createElement("div");
+    el.className="card";
+    el.innerHTML=`<b>${positions[i]}</b>${pool[i]}`;
+    out.appendChild(el);
+  }
+}
 </script>
 </body>
 </html>
