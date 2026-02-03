@@ -49,68 +49,73 @@ button:hover{background:#364e6d;}
 .card b{display:block;margin-bottom:6px;}
 .footer{margin-top:16px;font-size:12px;color:var(--muted);}
 </style>
+  .stage {
+  display: none;
+}
+
+.stage--active {
+  display: block;
+}
 </head>
 
 <body>
-<div class="wrap">
-  <h1>Thoth Tarot · 凯尔特十字</h1>
 
-  <div class="panel">
-    <p class="note">
-      本系统基于托特塔罗与 G.D./A∴A∴ 传统。<br>
-      不采用现代“好坏逆位”解释；若出现逆向，仅视为力量受阻、内化或未完全显现。
-    </p>
-
-    <button onclick="draw()">洗牌 · 切牌 · 抽牌</button>
-
-    <div id="out" class="cards"></div>
-
-    <div class="footer">
-      使用前请静心，明确问题。此系统用于象征性指引与内在观照。
-    </div>
+  <div id="stage-entrance" class="stage stage--active">
+    <h2>进入占卜结构</h2>
+    <p class="hint">在继续之前，请在心中明确你的问题。</p>
+    <button id="btn-enter">进入</button>
   </div>
-</div>
+
+  <div id="stage-cross" class="stage">
+    <h2>核心十字</h2>
+    <div id="cross-cards"></div>
+    <button id="btn-next-cross">继续</button>
+  </div>
+
+  <div id="stage-time" class="stage">
+    <h2>时间展开</h2>
+    <div id="time-cards"></div>
+    <button id="btn-next-time">继续</button>
+  </div>
+
+  <div id="stage-relations" class="stage">
+    <h2>关系结构</h2>
+    <div id="relation-cards"></div>
+    <button id="btn-next-relations">继续</button>
+  </div>
+
+  <div id="stage-outcome" class="stage">
+    <h2>结果</h2>
+    <div id="outcome-card"></div>
+  </div>
+
+</body>
 
 <script>
-const cards = [
-  "愚者","魔术师","女祭司","女皇","皇帝","教皇",
-  "恋人","战车","调整","隐者","命运之轮","欲望",
-  "倒吊人","死亡","艺术","魔鬼","塔","星星","月亮","太阳",
-  "审判","宇宙"
-];
+let stage = 0;
 
-const positions = [
-  "现状（Significator）",
-  "阻碍 / 助力",
-  "显意识目标",
-  "潜意识基础",
-  "过去影响",
-  "即将显现的未来",
-  "提问者自身",
-  "环境 / 他人",
-  "希望与恐惧",
-  "最终结果"
-];
-
-function shuffle(a){
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
+function goToStage(name) {
+  document.querySelectorAll(".stage").forEach(el => {
+    el.classList.remove("stage--active");
+  });
+  document.getElementById(`stage-${name}`).classList.add("stage--active");
 }
 
-function draw(){
-  const pool=[...cards];
-  shuffle(pool);
-  const out=document.getElementById("out");
-  out.innerHTML="";
-  for(let i=0;i<10;i++){
-    const el=document.createElement("div");
-    el.className="card";
-    el.innerHTML=`<b>${positions[i]}</b>${pool[i]}`;
-    out.appendChild(el);
-  }
-}
+document.getElementById("btn-enter").onclick = () => {
+  goToStage("cross");
+};
+
+document.getElementById("btn-next-cross").onclick = () => {
+  goToStage("time");
+};
+
+document.getElementById("btn-next-time").onclick = () => {
+  goToStage("relations");
+};
+
+document.getElementById("btn-next-relations").onclick = () => {
+  goToStage("outcome");
+};
 </script>
 </body>
 </html>
